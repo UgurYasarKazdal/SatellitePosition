@@ -99,7 +99,7 @@ fun SatelliteItem(satellite: Satellite, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SatelliteScreen(onSatelliteClick: (Int) -> Unit) {
+fun SatelliteScreen(onSatelliteClick: (String, Int) -> Unit) {
     val satelliteViewModel = koinViewModel<SatelliteViewModel>()
     val satellites by satelliteViewModel.satelliteList.collectAsState()
     val itemCount = satellites.size
@@ -149,7 +149,7 @@ fun SatelliteScreen(onSatelliteClick: (Int) -> Unit) {
                         satellite = satellite,
                         modifier = Modifier.clickable {
                             // Tıklama olayında callback fonksiyonunu çağır
-                            onSatelliteClick(satellite.id.toInt())
+                            onSatelliteClick(satellite.name, satellite.id.toInt())
                         }
                     )
                     if (index < itemCount - 1) {
