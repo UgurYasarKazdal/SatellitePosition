@@ -24,8 +24,6 @@ fun SatelliteApp() {
                 onSatelliteClick = { satelliteId ->
 
                     Log.e("DETAİL",satelliteId.toString())
-                    Log.e("DETAİL",satelliteId.toString())
-                    Log.e("DETAİL",satelliteId.toString())
 
                     navController.navigate(SatelliteDestinations.createDetailRoute(satelliteId))
                 }
