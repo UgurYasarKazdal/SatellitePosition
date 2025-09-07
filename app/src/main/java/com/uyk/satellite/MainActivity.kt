@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.uyk.satellite.core.navigation.SatelliteDestinations
 import com.uyk.satellite.list.data.Satellite
 import com.uyk.satellite.list.data.SatelliteStatus
 import com.uyk.satellite.list.presentation.SatelliteViewModel
@@ -47,18 +51,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             SatellitePositionTheme {
-                SatelliteScreen()
+                SatelliteApp()
             }
         }
     }
 }
 
 @Composable
-fun SatelliteItem(satellite: Satellite) {
+fun SatelliteItem(satellite: Satellite, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -94,7 +99,7 @@ fun SatelliteItem(satellite: Satellite) {
 }
 
 @Composable
-fun SatelliteScreen() {
+fun SatelliteScreen(onSatelliteClick: (Int) -> Unit) {
     val satelliteViewModel = koinViewModel<SatelliteViewModel>()
     val satellites by satelliteViewModel.satelliteList.collectAsState()
     val itemCount = satellites.size
@@ -133,8 +138,6 @@ fun SatelliteScreen() {
                 )
             )
 
-
-
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
                 modifier = Modifier.fillMaxSize(),
@@ -142,7 +145,13 @@ fun SatelliteScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 itemsIndexed(satellites) { index, satellite ->
-                    SatelliteItem(satellite)
+                    SatelliteItem(
+                        satellite = satellite,
+                        modifier = Modifier.clickable {
+                            // Tıklama olayında callback fonksiyonunu çağır
+                            onSatelliteClick(satellite.id.toInt())
+                        }
+                    )
                     if (index < itemCount - 1) {
                         HorizontalDivider()
                     }
