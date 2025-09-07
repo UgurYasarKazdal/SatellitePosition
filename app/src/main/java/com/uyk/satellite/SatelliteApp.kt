@@ -21,11 +21,16 @@ fun SatelliteApp() {
         // Liste ekranı
         composable(SatelliteDestinations.SATELLITE_LIST_ROUTE) {
             SatelliteScreen(
-                onSatelliteClick = { satelliteId ->
+                onSatelliteClick = { satelliteName, satelliteId ->
 
-                    Log.e("DETAİL",satelliteId.toString())
+                    Log.e("DETAİL", satelliteId.toString())
 
-                    navController.navigate(SatelliteDestinations.createDetailRoute(satelliteId))
+                    navController.navigate(
+                        SatelliteDestinations.createDetailRoute(
+                            satelliteName,
+                            satelliteId
+                        )
+                    )
                 }
             )
         }
@@ -33,10 +38,14 @@ fun SatelliteApp() {
         // Detay ekranı
         composable(
             route = SatelliteDestinations.SATELLITE_DETAIL_ROUTE,
-            arguments = listOf(navArgument("satelliteId") { type = NavType.IntType })
+            arguments = listOf(
+                navArgument("satelliteName") { type = NavType.StringType },
+                navArgument("satelliteId") { type = NavType.IntType },
+            )
         ) { backStackEntry ->
             val satelliteId = backStackEntry.arguments?.getInt("satelliteId") ?: 0
-            SatelliteDetailScreen(satelliteId)
+            val satelliteName = backStackEntry.arguments?.getString("satelliteName") ?: ""
+            SatelliteDetailScreen(satelliteName, satelliteId)
 
         }
     }
