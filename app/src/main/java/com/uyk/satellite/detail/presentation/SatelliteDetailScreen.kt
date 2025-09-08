@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,11 +35,17 @@ fun SatelliteDetailScreen(satelliteName: String, satelliteId: Int) {
     // Şimdilik, mock data kullanalım.
     val satelliteDetailViewModel = koinViewModel<SatelliteDetailViewModel>()
 
-    val uiState by satelliteDetailViewModel.uiState.collectAsState()
+    val satelliteDetail by satelliteDetailViewModel.satelliteDetail.collectAsState()
+    val satellitePosition by satelliteDetailViewModel.satellitePosition.collectAsState()
 
     satelliteDetailViewModel.getSatelliteDetail(satelliteId = satelliteId.toString())
 
-    when (uiState) {
+    LaunchedEffect(satelliteId) {
+        satelliteDetailViewModel.getSatelliteDetail(satelliteId = satelliteId.toString())
+        satelliteDetailViewModel.startPositionUpdates(satelliteId.toString())
+    }
+
+    when (satelliteDetail) {
         is UiState.Loading -> {
             // Yüklenme durumunda gösterilecek UI
             Box(
@@ -50,9 +57,14 @@ fun SatelliteDetailScreen(satelliteName: String, satelliteId: Int) {
         }
 
         is UiState.Success -> {
-            val data = (uiState as UiState.Success).data
+            val detail = (satelliteDetail as UiState.Success).data
+            val position = (satellitePosition as? UiState.Success)?.data?:"N/A"
 
-            DetailBody(satelliteName = satelliteName, satelliteDetail = data)
+            DetailBody(
+                satelliteName = satelliteName,
+                satelliteDetail = detail,
+                satellitePosition = position
+            )
         }
 
         is UiState.Error -> {
@@ -70,7 +82,11 @@ fun SatelliteDetailScreen(satelliteName: String, satelliteId: Int) {
 }
 
 @Composable
-fun DetailBody(satelliteName: String, satelliteDetail: SatelliteDetail) {
+fun DetailBody(
+    satelliteName: String,
+    satelliteDetail: SatelliteDetail,
+    satellitePosition: String
+) {
 // Eğer detay bulunamazsa bir hata mesajı gösterebilirsiniz
     if (satelliteDetail == null) {
         Box(
@@ -134,7 +150,7 @@ fun DetailBody(satelliteName: String, satelliteDetail: SatelliteDetail) {
             // Last Position
             DetailRow(
                 label = "Last Position:",
-                value = satelliteDetail.lastPosition
+                value = satellitePosition
             )
         }
     }
@@ -161,10 +177,4 @@ fun DetailRow(label: String, value: String) {
             color = Color.Black
         )
     }
-}
-
-// Maliyet formatlama fonksiyonu
-fun formatCost(cost: Long): String {
-    val formatter = DecimalFormat("#,###")
-    return formatter.format(cost)
 }
