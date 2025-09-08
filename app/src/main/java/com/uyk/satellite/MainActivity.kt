@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.uyk.satellite.core.navigation.SatelliteDestinations
@@ -50,7 +51,6 @@ import org.koin.compose.viewmodel.koinViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         setContent {
             SatellitePositionTheme {
@@ -101,8 +101,10 @@ fun SatelliteItem(satellite: Satellite, modifier: Modifier = Modifier) {
 @Composable
 fun SatelliteScreen(onSatelliteClick: (String, Int) -> Unit) {
     val satelliteViewModel = koinViewModel<SatelliteViewModel>()
-    val satellites by satelliteViewModel.satelliteList.collectAsState()
+    val satellites by satelliteViewModel.filteredList.collectAsState()
     val itemCount = satellites.size
+
+    val query by satelliteViewModel.query.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -113,8 +115,8 @@ fun SatelliteScreen(onSatelliteClick: (String, Int) -> Unit) {
         ) {
             // Arama çubuğu
             OutlinedTextField(
-                value = "",
-                onValueChange = { /* Arama sorgusu güncellenecek */ },
+                value = query,
+                onValueChange = satelliteViewModel::onQueryChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
