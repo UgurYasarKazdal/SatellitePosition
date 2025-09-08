@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.uyk.satellite.core.navigation.SatelliteDestinations
+import com.uyk.satellite.detail.presentation.UiState
 import com.uyk.satellite.list.data.Satellite
 import com.uyk.satellite.list.data.SatelliteStatus
 import com.uyk.satellite.list.presentation.SatelliteViewModel
@@ -102,7 +104,10 @@ fun SatelliteItem(satellite: Satellite, modifier: Modifier = Modifier) {
 fun SatelliteScreen(onSatelliteClick: (String, Int) -> Unit) {
     val satelliteViewModel = koinViewModel<SatelliteViewModel>()
     val satellites by satelliteViewModel.filteredList.collectAsState()
-    val itemCount = satellites.size
+
+    val satelliteList = (satellites as? UiState.Success)?.data
+
+    val itemCount = satelliteList?.size?:0
 
     val query by satelliteViewModel.query.collectAsState()
 
@@ -140,25 +145,55 @@ fun SatelliteScreen(onSatelliteClick: (String, Int) -> Unit) {
                 )
             )
 
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                itemsIndexed(satellites) { index, satellite ->
-                    SatelliteItem(
-                        satellite = satellite,
-                        modifier = Modifier.clickable {
-                            // Tıklama olayında callback fonksiyonunu çağır
-                            onSatelliteClick(satellite.name, satellite.id.toInt())
+            when (satellites) {
+                is UiState.Loading -> {
+                    // Yüklenme durumunda gösterilecek UI
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is UiState.Success -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if(satelliteList!=null){
+                            itemsIndexed(satelliteList) { index, satellite ->
+                                SatelliteItem(
+                                    satellite = satellite,
+                                    modifier = Modifier.clickable {
+                                        // Tıklama olayında callback fonksiyonunu çağır
+                                        onSatelliteClick(satellite.name, satellite.id.toInt())
+                                    }
+                                )
+
+                                if (index < itemCount - 1) {
+                                    HorizontalDivider()
+                                }
+                            }
+
                         }
-                    )
-                    if (index < itemCount - 1) {
-                        HorizontalDivider()
+
+                    }
+
+                }
+                is UiState.Error -> {
+                    // Hata durumunda gösterilecek UI
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Bir hata oluştu. Lütfen tekrar deneyin.")
                     }
                 }
             }
+
         }
     }
 }
