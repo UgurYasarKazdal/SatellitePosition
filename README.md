@@ -21,4 +21,4 @@ Bu proje, uzay araçlarının konumlarını ve durumlarını gerçek zamanlı ol
 ## 📦 Kurulum
 
 ```bash
-git clone https://github.com/kullaniciadi/satellite-tracker.git
+git clone https://github.com/UgurYasarKazdal/SatellitePosition.git
