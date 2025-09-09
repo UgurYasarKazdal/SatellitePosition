@@ -7,8 +7,12 @@ import kotlinx.serialization.Serializable
 data class SatelliteDetail(
     val firstFlightDate: String,
     val heightMass: String,
-    val cost: String,
-    val lastPosition: String
+    val cost: String
+)
+
+data class PositionData(
+    val posX: Double,
+    val posY: Double
 )
 
 @Serializable
@@ -23,19 +27,9 @@ data class PositionDto(
     val posY: Double
 )
 
-data class PositionData(
-    val posX: Double,
-    val posY: Double
-)
-
 @Serializable
 data class PositionsResponseDto(
     val list: List<SatellitePositionsDto>
-)
-
-data class SatellitePositions(
-    val id: String,
-    val positions: List<PositionData>
 )
 
 @Serializable
@@ -51,7 +45,5 @@ data class SatelliteDetailDto(
         firstFlightDate = formatFirstFlightDate(first_flight),
         heightMass = "$height/$mass",
         cost = formatCost(cost_per_launch),
-        lastPosition = ""
-
     )
 }
