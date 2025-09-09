@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -21,15 +22,19 @@ fun SatelliteDetailRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Normal,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
             color = Color.Black
         )
         Spacer(modifier = Modifier.width(8.dp)) // Etiket ve değer arasına boşluk
         Text(
             text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
             color = Color.Black
         )
     }
