@@ -25,12 +25,20 @@ data class SatellitePositionsDto(
 data class PositionDto(
     val posX: Double,
     val posY: Double
-)
+){
+    fun toDomain(): PositionData {
+        return PositionData(this.posX, this.posY)
+    }
+}
 
 @Serializable
 data class PositionsResponseDto(
     val list: List<SatellitePositionsDto>
-)
+){
+    fun toDomain(satelliteId: String): List<PositionData>? {
+        return list.find { it.id == satelliteId }?.positions?.map { it.toDomain() }
+    }
+}
 
 @Serializable
 data class SatelliteDetailDto(
