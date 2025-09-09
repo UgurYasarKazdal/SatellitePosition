@@ -3,12 +3,10 @@ package com.uyk.satellite.detail.domain
 import android.content.Context
 import android.util.Log
 import com.uyk.satellite.detail.data.PositionData
-import com.uyk.satellite.detail.data.PositionDto
 import com.uyk.satellite.detail.data.PositionsResponseDto
 import com.uyk.satellite.detail.data.SatelliteDetail
 import com.uyk.satellite.detail.data.SatelliteDetailCache
 import com.uyk.satellite.detail.data.SatelliteDetailDto
-import com.uyk.satellite.detail.data.SatellitePositionsDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -38,9 +36,9 @@ class SatelliteDetailRepository(private val context: Context) {
         Log.e("SatelliteDetailRepository", "Serialization error", e)
     }.flowOn(Dispatchers.IO)
 
-    fun checkSatelliteDetailCached(id: String) = SatelliteDetailCache.get(id) != null
+    private fun checkSatelliteDetailCached(id: String) = SatelliteDetailCache.get(id) != null
 
-    fun getSatelliteDetailOnce(id: String): SatelliteDetail {
+    private fun getSatelliteDetailOnce(id: String): SatelliteDetail {
         return SatelliteDetailCache.get(id)!!
     }
 
@@ -52,18 +50,10 @@ class SatelliteDetailRepository(private val context: Context) {
 
         val dtoList = Json.decodeFromString<PositionsResponseDto>(json)
 
-        emit(dtoList.list.toDomain(satelliteId))
+        emit(dtoList.toDomain(satelliteId))
     }.catch { e ->
         Log.e("SatelliteRepository", "Serialization error while parsing positions.json", e)
     }.flowOn(Dispatchers.IO) // IO thread'inde çalıştır
 
 
-    // Domain modellerini DTO'lardan dönüştürme fonksiyonları
-    fun List<SatellitePositionsDto>.toDomain(satelliteId: String): List<PositionData>? {
-        return this.find { it.id == satelliteId }?.positions?.map { it.toDomain() }
-    }
-
-    fun PositionDto.toDomain(): PositionData {
-        return PositionData(this.posX, this.posY)
-    }
 }

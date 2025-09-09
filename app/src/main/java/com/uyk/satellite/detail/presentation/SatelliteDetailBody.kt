@@ -1,6 +1,7 @@
 package com.uyk.satellite.detail.presentation
 
 import SatelliteDetailRow
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,22 +22,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uyk.satellite.detail.data.SatelliteDetail
+import com.uyk.satellite.util.getLineNumber
+
 
 @Composable
 fun DetailBody(
     satelliteName: String,
     satelliteDetail: SatelliteDetail,
-    satellitePosition: String
+    positionContent: @Composable () -> Unit
 ) {
-    if (satelliteDetail == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Uydu detayları bulunamadı.", color = Color.Gray, fontSize = 18.sp)
-        }
-        return
-    }
+
+    Log.e("DetailBody", "where are we: ${getLineNumber()}")
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -45,7 +43,7 @@ fun DetailBody(
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top // İçeriği en üste hizala
+            verticalArrangement = Arrangement.Center // İçeriği en üste hizala
         ) {
             Spacer(modifier = Modifier.height(60.dp)) // Üstten boşluk bırak
 
@@ -61,7 +59,7 @@ fun DetailBody(
             // İlk Uçuş Tarihi
             Text(
                 text = satelliteDetail.firstFlightDate,
-                fontSize = 18.sp,
+                fontSize = 14.sp,
                 color = Color.Gray
             )
 
@@ -84,10 +82,15 @@ fun DetailBody(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Last Position
-            SatelliteDetailRow(
-                label = "Last Position:",
-                value = satellitePosition
-            )
+            positionContent()
         }
     }
+}
+
+@Composable
+fun SatellitePositionSection(viewModel: SatelliteDetailViewModel) {
+    val satellitePosition by viewModel.satellitePosition.collectAsState()
+    val position = (satellitePosition as? UiState.Success)?.data ?: "N/A"
+
+    SatelliteDetailRow(label = "Last Position:", position)
 }
